@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/magoumi/projects/alien-invasion-cpp/build/_deps/raylib-subbuild/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
