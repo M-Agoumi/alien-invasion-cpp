@@ -5,11 +5,31 @@
 #pragma once
 #ifndef ALIENINVASION_GAME_PAGE_H
 #define ALIENINVASION_GAME_PAGE_H
+
+#include <vector>
+
 #include "Screen.h"
+#include "../UI/TextLabel.h"
+
+struct BackgroundStar {
+    Vector2 position;
+    float scale;
+    Color tint; // Let us make some stars dimmer for depth!
+};
 
 class GamePage : public Screen
 {
-    public:
+private:
+    TextLabel* pageTitle;
+    Texture2D starTexture;
+
+    // Our array (vector) of stars
+    std::vector<BackgroundStar> stars;
+
+    // Helper method to generate the field
+    void GenerateStars();
+
+public:
     GamePage(); // Constructor
     ~GamePage() override; // Destructor
 

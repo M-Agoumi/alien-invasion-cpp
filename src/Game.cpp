@@ -4,6 +4,7 @@
 
 #include  "Game.h"
 #include "raylib.h"
+#include "Screens/GamePage.h"
 #include "Screens/HomePage.h"
 #include "Screens/SettingPage.h"
 
@@ -17,7 +18,8 @@ Game::Game(const int width, const int height)
     InitWindow(screenWidth, screenHeight, "Alien Invasion");
     SetTargetFPS(120);
 
-    this->currentScreen = new HomePage();
+    // this->currentScreen = new HomePage(); // default page
+    this->currentScreen = new GamePage(); // while working in the page to save time on clicks
 }
 
 Game::~Game()
@@ -33,6 +35,12 @@ void Game::Update()
     if (this->currentScreen != nullptr) {
         // Grab the action from the current screen
         ScreenAction action = this->currentScreen->Update();
+
+        // Handle the game
+        if (action == ScreenAction::GoToInGame) {
+            delete this->currentScreen; // Clean up the old screen
+            this->currentScreen = new GamePage(); // Switch to InGame
+        }
 
         // Handle the routing based on the action
         if (action == ScreenAction::Exit) {

@@ -12,9 +12,9 @@
 
 class HomePage : public Screen
 {
-    Texture2D background;
-    Rectangle sourceRec;
-    Rectangle destRec;
+    Texture2D background{};
+    Rectangle sourceRec{};
+    Rectangle destRec{};
     Button* btnStart;
     Button* btnSettings;
     Button* btnExit;
