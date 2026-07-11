@@ -1,63 +1,56 @@
-cmake_minimum_required(VERSION 3.25)
-project(alien_invasion LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.14)
+project(AlienInvasion CXX)
 
+# Require C++17
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# CMake 4.x removed compatibility with projects that request
-# cmake_minimum_required(VERSION < 3.5). raylib 5.0 / json still do,
-# so allow them to configure by pinning a minimum policy version.
-set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+# Default to a Release build when no build type is specified (e.g. a plain
+# `cmake -S . -B build`). Silences raylib's "Default build type is not set".
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
 
-# Enable FetchContent
+# Fetch raylib directly
 include(FetchContent)
-
-# Fetch Raylib (using SYSTEM to suppress warnings from its headers)
 FetchContent_Declare(
-  raylib
-  URL https://github.com/raysan5/raylib/archive/refs/tags/5.0.tar.gz
-  SYSTEM
+        raylib
+        GIT_REPOSITORY https://github.com/raysan5/raylib.git
+        GIT_TAG master # Or specify a release tag like 4.5.0
 )
-# Set Raylib options before making it available
-set(CUSTOMIZE_BUILD ON CACHE BOOL "" FORCE)
-set(SUPPORT_GIF_RECORDING OFF CACHE BOOL "" FORCE)
-set(SUPPORT_FILEFORMAT_BMP ON CACHE BOOL "" FORCE)
-set(SUPPORT_FILEFORMAT_JPG ON CACHE BOOL "" FORCE)
-set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(raylib)
-
-# Fetch nlohmann/json (using SYSTEM to suppress warnings from its headers)
 FetchContent_Declare(
-  json
-  URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz
-  SYSTEM
+        raygui
+        GIT_REPOSITORY https://github.com/raysan5/raygui.git
+        GIT_TAG master # Or specify a release tag like 4.5.0
+        # raygui is header-only. Point SOURCE_SUBDIR at a folder with no
+        # CMakeLists.txt so MakeAvailable only downloads it (skips building
+        # raygui's examples, which would otherwise need raylib via find_package).
+        SOURCE_SUBDIR  do_not_build
 )
-FetchContent_MakeAvailable(json)
+FetchContent_MakeAvailable(raylib raygui)
 
-# Suppress compiler warnings when compiling third-party libraries (raylib/glfw)
-if(TARGET raylib)
-  target_compile_options(raylib PRIVATE -w)
-endif()
-if(TARGET glfw)
-  target_compile_options(glfw PRIVATE -w)
-endif()
-
-# Add our executable (only compiling main.cpp for start fresh)
-add_executable(alien_invasion
-  src/main.cpp
-        src/game.cpp
-        src/game.h
+# Our game executable
+add_executable(${PROJECT_NAME} main.cpp
+        src/Game.h
+        src/Game.cpp
+        src/raygui_impl.cpp
+        src/Screens/Screen.h
+        src/Screens/HomePage.cpp
+        src/Screens/HomePage.h
+        src/UI/Button.h
+        src/UI/Button.cpp
+        src/Screens/SettingPage.h
+        src/Screens/SettingPage.cpp
+        src/UI/TextLabel.cpp
+        src/UI/TextLabel.h
+        src/raygui_impl.cpp
+        src/Screens/GamePage.cpp
+        src/Screens/GamePage.h
 )
 
-# Enable high warning level for our own code
-if(MSVC)
-  target_compile_options(alien_invasion PRIVATE /W4)
-else()
-  target_compile_options(alien_invasion PRIVATE -Wall -Wextra -Wpedantic)
-endif()
+# Link raylib to our game
+target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
 
-# Link dependencies
-target_link_libraries(alien_invasion PRIVATE raylib nlohmann_json::nlohmann_json)
+# raygui is header-only: just make its header available on the include path
+target_include_directories(${PROJECT_NAME} PRIVATE ${raygui_SOURCE_DIR}/src)
 
-# Include directories
-target_include_directories(alien_invasion PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

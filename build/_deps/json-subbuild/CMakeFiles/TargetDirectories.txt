@@ -1,3 +1,0 @@
-/home/magoumi/projects/alien-invasion-cpp/build/_deps/json-subbuild/CMakeFiles/json-populate.dir
-/home/magoumi/projects/alien-invasion-cpp/build/_deps/json-subbuild/CMakeFiles/edit_cache.dir
-/home/magoumi/projects/alien-invasion-cpp/build/_deps/json-subbuild/CMakeFiles/rebuild_cache.dir
