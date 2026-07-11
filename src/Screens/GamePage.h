@@ -11,7 +11,8 @@
 #include "Screen.h"
 #include "../UI/TextLabel.h"
 
-struct BackgroundStar {
+struct BackgroundStar
+{
     Vector2 position;
     float scale;
     Color tint; // Let us make some stars dimmer for depth!
@@ -19,7 +20,6 @@ struct BackgroundStar {
 
 class GamePage : public Screen
 {
-private:
     TextLabel* pageTitle;
     Texture2D starTexture;
 

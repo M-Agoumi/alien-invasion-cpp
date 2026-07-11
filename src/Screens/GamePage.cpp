@@ -72,6 +72,17 @@ ScreenAction GamePage::Update()
         stars.clear();      // 1. Wipe out the old stars so we don't leak memory
         GenerateStars();    // 2. Run the grid math again for the new dimensions
     }
+
+    // move stars
+    for (auto& star : stars)
+    {
+        // DrawTextureEx takes: texture, position, rotation, scale, tint
+        star.position.y += 0.5f; // Move the star downwards
+        if (star.position.y > GetScreenHeight()) {
+            star.position.y = -10; // Reset the star to the top of the screen
+        }
+    }
+
     // For now, we just return None to keep the page active
     return ScreenAction::None;
 }
