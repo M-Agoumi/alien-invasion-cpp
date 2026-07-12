@@ -23,7 +23,7 @@ GamePage::~GamePage()
 
 void GamePage::GenerateStars() {
     // 1. Define our invisible grid
-    int cellSize = 80; // An 80x80 pixel box for each star
+    int cellSize = 60; // An 60x60 pixel box for each star
     int cols = GetScreenWidth() / cellSize;
     int rows = GetScreenHeight() / cellSize;
 
@@ -74,12 +74,21 @@ ScreenAction GamePage::Update()
     }
 
     // move stars
-    for (auto& star : stars)
-    {
-        // DrawTextureEx takes: texture, position, rotation, scale, tint
-        star.position.y += 0.5f; // Move the star downwards
+    // Get the time in seconds it took to render the last frame
+    float deltaTime = GetFrameTime();
+
+    // move stars
+    for (auto& star : stars) {
+        // 1. Parallax Effect: Base speed * star scale
+        // A scale of 0.5 moves at 50px/sec, a scale of 1.2 moves at 120px/sec
+        float speed = 100.0f * star.scale;
+
+        // Move the star downwards (Frame-rate independent!)
+        star.position.y += speed * deltaTime;
+
+        // 2. Reset the star if it falls off the screen
         if (star.position.y > GetScreenHeight()) {
-            star.position.y = -10; // Reset the star to the top of the screen
+            star.position.y = -20; // Start slightly above the top edge
         }
     }
 
