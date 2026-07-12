@@ -95,4 +95,6 @@ void GamePage::Draw()
         DrawTextureEx(starTexture, star.position, 0.0f, star.scale, star.tint);
     }
     // pageTitle->DrawCenteredX(100); // Draw the title at the top center of the screen
+
+    DrawFPS(GetScreenWidth() - 85, 10);
 }

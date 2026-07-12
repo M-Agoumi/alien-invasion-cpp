@@ -3,6 +3,10 @@
 //
 
 #include  "Game.h"
+
+#include <iostream>
+#include <ostream>
+
 #include "raylib.h"
 #include "Screens/GamePage.h"
 #include "Screens/HomePage.h"
@@ -16,7 +20,19 @@ Game::Game(const int width, const int height)
 
     // 1. Initialize the system
     InitWindow(screenWidth, screenHeight, "Alien Invasion");
-    SetTargetFPS(120);
+
+    // 2. Ask the OS exactly what the monitor's hardware refresh rate is
+    int monitor = GetCurrentMonitor();
+    int refreshRate = GetMonitorRefreshRate(monitor);
+
+    std::cout << "refresh rate: " << refreshRate << std::endl;
+    // Optional: Just in case the OS returns 0 (which happens on some setups), default to 120
+    if (refreshRate == 0) {
+        refreshRate = 120;
+    }
+
+    // 3. Force the engine to perfectly match the hardware
+    SetTargetFPS(refreshRate);
 
     // this->currentScreen = new HomePage(); // default page
     this->currentScreen = new GamePage(); // while working in the page to save time on clicks
