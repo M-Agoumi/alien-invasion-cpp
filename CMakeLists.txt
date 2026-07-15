@@ -16,12 +16,15 @@ include(FetchContent)
 FetchContent_Declare(
         raylib
         GIT_REPOSITORY https://github.com/raysan5/raylib.git
-        GIT_TAG master # Or specify a release tag like 4.5.0
+        GIT_TAG 5.5 # Pinned release tag (avoid `master`, which forces a
+                    # rebase/fetch on every configure and can cause conflicts)
+        GIT_SHALLOW TRUE
 )
 FetchContent_Declare(
         raygui
         GIT_REPOSITORY https://github.com/raysan5/raygui.git
-        GIT_TAG master # Or specify a release tag like 4.5.0
+        GIT_TAG 4.0 # Pinned release tag (see note above)
+        GIT_SHALLOW TRUE
         # raygui is header-only. Point SOURCE_SUBDIR at a folder with no
         # CMakeLists.txt so MakeAvailable only downloads it (skips building
         # raygui's examples, which would otherwise need raylib via find_package).
