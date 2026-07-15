@@ -8,8 +8,10 @@
 
 Ship::Ship()
 {
-    this->spaceshipTexture = LoadTexture("resources/images/spaceship_icon.bmp");
-    this->shipFireTexture = LoadTexture("resources/images/ship_fire_119x110.png");
+    this->spaceshipTexture = LoadTexture("resources/images/ship/spaceship_icon.bmp");
+    this->spaceshipRightTexture = LoadTexture("resources/images/ship/spaceship_right.bmp");
+    this->spaceshipLeftTexture = LoadTexture("resources/images/ship/spaceship_left_1.bmp");
+    this->shipFireTexture = LoadTexture("resources/images/ship/ship_fire_119x110.png");
 
     // Start the ship centered horizontally, near the bottom of the screen
     shipPosition.x = (float)GetScreenWidth() / 2.0f - shipWidth / 2.0f;
@@ -19,6 +21,8 @@ Ship::Ship()
 Ship::~Ship()
 {
     UnloadTexture(spaceshipTexture);
+    UnloadTexture(spaceshipRightTexture);
+    UnloadTexture(spaceshipLeftTexture);
     UnloadTexture(shipFireTexture);
 }
 
@@ -30,8 +34,10 @@ void Ship::Update()
     // --- Ship movement (frame-rate independent) ---
     // Arrow keys or WASD. IsKeyDown is true for as long as the key is held.
     float moveStep = this->shipSpeed * deltaTime;
-    if (IsKeyDown(KEY_LEFT)  || IsKeyDown(KEY_A)) shipPosition.x -= moveStep;
-    if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) shipPosition.x += moveStep;
+    isMovingLeft = false;
+    isMovingRight = false;
+    if (IsKeyDown(KEY_LEFT)  || IsKeyDown(KEY_A)){shipPosition.x -= moveStep; isMovingLeft = true; isMovingRight = false;}
+    if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)){shipPosition.x += moveStep; isMovingRight = true; isMovingLeft = false;}
     if (IsKeyDown(KEY_UP)    || IsKeyDown(KEY_W)) shipPosition.y -= moveStep;
     if (IsKeyDown(KEY_DOWN)  || IsKeyDown(KEY_S)) shipPosition.y += moveStep;
 
@@ -102,7 +108,13 @@ void Ship::Draw()
         shipW,
         shipH
     };
-    DrawTexturePro(spaceshipTexture, shipSource, shipDest, { 0.0f, 0.0f }, 0.0f, WHITE);
+    if (isMovingRight) {
+        DrawTexturePro(spaceshipRightTexture, shipSource, shipDest, { 0.0f, 0.0f }, 0.0f, WHITE);
+    } else if (isMovingLeft) {
+        DrawTexturePro(spaceshipLeftTexture, shipSource, shipDest, { 0.0f, 0.0f }, 0.0f, WHITE);
+    } else {
+        DrawTexturePro(spaceshipTexture, shipSource, shipDest, { 0.0f, 0.0f }, 0.0f, WHITE);
+    }
 
     // Draw the animated engine fire at the bottom-center of the ship
     int fireX = (int)(shipDest.x + shipW / 2.0f);

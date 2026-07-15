@@ -11,7 +11,11 @@
 class Ship: public Entity
 {
     Texture2D spaceshipTexture{};
+    Texture2D spaceshipRightTexture{};
+    Texture2D spaceshipLeftTexture{};
     Texture2D shipFireTexture{};
+    bool isMovingRight = false;
+    bool isMovingLeft = false;
 
     // Ship movement state
     Vector2 shipPosition = {0.0f, 0.0f}; // Top-left corner of the ship
