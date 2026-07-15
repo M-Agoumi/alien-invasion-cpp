@@ -6,7 +6,7 @@
 
 Space::Space()
 {
-    this->starTexture = LoadTexture("resources/images/star_01_16x16.bmp");
+    this->starTexture = LoadTexture("resources/images/space/star_01_16x16.bmp");
 
     // Generate stars right when the page loads
     GenerateStars();
