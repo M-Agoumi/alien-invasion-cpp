@@ -14,8 +14,8 @@ Ship::Ship()
     this->shipFireTexture = LoadTexture("resources/images/ship/ship_fire_119x110.png");
 
     // Start the ship centered horizontally, near the bottom of the screen
-    shipPosition.x = (float)GetScreenWidth() / 2.0f - shipWidth / 2.0f;
-    shipPosition.y = (float)GetScreenHeight() - shipHeight - 20.0f;
+    shipPosition.x = static_cast<float>(GetScreenWidth()) / 2.0f - shipWidth / 2.0f;
+    shipPosition.y = static_cast<float>(GetScreenHeight()) - shipHeight - 20.0f;
 }
 
 Ship::~Ship()
@@ -29,11 +29,11 @@ Ship::~Ship()
 void Ship::Update()
 {
     // Get the time in seconds it took to render the last frame
-    float deltaTime = GetFrameTime();
+    const float deltaTime = GetFrameTime();
 
     // --- Ship movement (frame-rate independent) ---
     // Arrow keys or WASD. IsKeyDown is true for as long as the key is held.
-    float moveStep = this->shipSpeed * deltaTime;
+    const float moveStep = this->shipSpeed * deltaTime;
     isMovingLeft = false;
     isMovingRight = false;
     if (IsKeyDown(KEY_LEFT)  || IsKeyDown(KEY_A)){shipPosition.x -= moveStep; isMovingLeft = true; isMovingRight = false;}
@@ -44,10 +44,10 @@ void Ship::Update()
     // Keep the ship fully inside the screen bounds
     if (shipPosition.x < 0.0f) shipPosition.x = 0.0f;
     if (shipPosition.y < 0.0f) shipPosition.y = 0.0f;
-    if (shipPosition.x > (float)GetScreenWidth() - shipWidth)
-        shipPosition.x = (float)GetScreenWidth() - shipWidth;
-    if (shipPosition.y > (float)GetScreenHeight() - shipHeight)
-        shipPosition.y = (float)GetScreenHeight() - shipHeight;
+    if (shipPosition.x > static_cast<float>(GetScreenWidth()) - shipWidth)
+        shipPosition.x = static_cast<float>(GetScreenWidth()) - shipWidth;
+    if (shipPosition.y > static_cast<float>(GetScreenHeight()) - shipHeight)
+        shipPosition.y = static_cast<float>(GetScreenHeight()) - shipHeight;
 }
 
 void Ship::animateFire(int shipX, int shipY)
@@ -55,43 +55,44 @@ void Ship::animateFire(int shipX, int shipY)
     // Sprite sheet layout: frames are 119x110, laid out 5 per row.
     // Rows 0..2 are full (5 frames each) and row 3 has only 3 frames,
     // for a total of 5 + 5 + 5 + 3 = 18 frames.
-    const int frameWidth   = 119;
-    const int frameHeight  = 110;
-    const int framesPerRow  = 5;
-    const int totalFrames   = 18;
-    const float frameDuration = 0.02f; // 20 ms per frame
+    constexpr int frameWidth   = 119;
+    constexpr int frameHeight  = 110;
+    constexpr int framesPerRow  = 5;
+    constexpr int totalFrames   = 18;
+    constexpr float frameDuration = 0.02f; // 20 ms per frame
 
     // Advance the animation using frame-rate-independent timing
     fireTimer += GetFrameTime();
+    // NOLINT(bugprone-infinite-loop) -- this loop is guaranteed to terminate because fireTimer decreases each iteration
     while (fireTimer >= frameDuration) {
         fireTimer -= frameDuration;
         fireFrame = (fireFrame + 1) % totalFrames; // loop back to the start
     }
 
     // Locate the current frame inside the sprite sheet
-    int col = fireFrame % framesPerRow;
-    int row = fireFrame / framesPerRow;
-    Rectangle source = {
-        (float)(col * frameWidth),
-        (float)(row * frameHeight),
-        (float)frameWidth,
-        (float)frameHeight
+    const int col = fireFrame % framesPerRow;
+    const int row = fireFrame / framesPerRow;
+    const Rectangle source = {
+        static_cast<float>(col * frameWidth),
+        static_cast<float>(row * frameHeight),
+        static_cast<float>(frameWidth),
+        static_cast<float>(frameHeight)
     };
 
     // Draw the flame scaled down, keeping its aspect ratio
-    float fireW = 40.0f;
-    float fireH = fireW * ((float)frameHeight / (float)frameWidth);
+    constexpr float fireW = 40.0f;
+    constexpr float fireH = fireW * (static_cast<float>(frameHeight) / static_cast<float>(frameWidth));
 
     // Rotate the flame 90 degrees. Rotation happens around the origin,
-    // so we center the origin and treat dest's x/y as the center point.
-    float rotation = 90.0f;
+    // so we center the origin and treat destination's x/y as the center point.
+    constexpr float rotation = 90.0f;
     Rectangle dest = {
-        (float)shipX,                // center X (rotation pivot)
-        (float)shipY + fireH / 2.0f, // center Y (rotation pivot)
+        static_cast<float>(shipX),                // center X (rotation pivot)
+        static_cast<float>(shipY) + fireH / 2.0f, // center Y (rotation pivot)
         fireW,
         fireH
     };
-    Vector2 origin = { fireW / 2.0f, fireH / 2.0f };
+    constexpr Vector2 origin = { fireW / 2.0f, fireH / 2.0f };
 
     DrawTexturePro(shipFireTexture, source, dest, origin, rotation, WHITE);
 }
@@ -99,10 +100,10 @@ void Ship::animateFire(int shipX, int shipY)
 void Ship::Draw()
 {
     // Draw the spaceship resized to a custom width/height using DrawTexturePro
-    float shipW = shipWidth;
-    float shipH = shipHeight;
-    Rectangle shipSource = { 0.0f, 0.0f, (float)spaceshipTexture.width, (float)spaceshipTexture.height };
-    Rectangle shipDest   = {
+    const float shipW = shipWidth;
+    const float shipH = shipHeight;
+    const Rectangle shipSource = { 0.0f, 0.0f, static_cast<float>(spaceshipTexture.width), static_cast<float>(spaceshipTexture.height) };
+    const Rectangle shipDest   = {
         shipPosition.x, // driven by keyboard input in Update()
         shipPosition.y,
         shipW,
@@ -117,7 +118,7 @@ void Ship::Draw()
     }
 
     // Draw the animated engine fire at the bottom-center of the ship
-    int fireX = (int)(shipDest.x + shipW / 2.0f);
-    int fireY = (int)(shipDest.y + shipH);
+    const int fireX = static_cast<int>(shipDest.x + shipW / 2.0f);
+    const int fireY = static_cast<int>(shipDest.y + shipH);
     animateFire(fireX, fireY);
 }
