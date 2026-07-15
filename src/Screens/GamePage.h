@@ -9,32 +9,15 @@
 #include <vector>
 
 #include "Screen.h"
+#include "../Entities/Ship.h"
+#include "../Entities/Space.h"
 #include "../UI/TextLabel.h"
-
-struct BackgroundStar
-{
-    Vector2 position;
-    float scale;
-    Color tint; // Let us make some stars dimmer for depth!
-};
 
 class GamePage : public Screen
 {
-    TextLabel* pageTitle;
-    Texture2D starTexture;
-    Texture2D spaceshipTexture;
-    Texture2D shipFireTexture;
+    Space space; // Background starfield
+    Ship ship; // The player's spaceship
 
-    // Fire animation state
-    int fireFrame = 0;        // Current frame index (0..17)
-    float fireTimer = 0.0f;   // Accumulated time toward the next frame
-
-    // Our array (vector) of stars
-    std::vector<BackgroundStar> stars;
-
-    // Helper method to generate the field
-    void GenerateStars();
-    void animateFire(int shipX, int shipY);
 
 public:
     GamePage(); // Constructor

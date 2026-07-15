@@ -46,6 +46,11 @@ add_executable(${PROJECT_NAME} main.cpp
         src/raygui_impl.cpp
         src/Screens/GamePage.cpp
         src/Screens/GamePage.h
+        src/Entities/Ship.cpp
+        src/Entities/Ship.h
+        src/Entities/Space.cpp
+        src/Entities/Space.h
+        src/Entities/Entity.h
 )
 
 # Link raylib to our game
