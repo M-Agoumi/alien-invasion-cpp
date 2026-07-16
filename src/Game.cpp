@@ -11,6 +11,7 @@
 #include "Screens/GamePage.h"
 #include "Screens/HomePage.h"
 #include "Screens/SettingPage.h"
+#include "Settings/GameSettings.h"
 
 Game::Game(const int width, const int height)
 {
@@ -36,11 +37,14 @@ Game::Game(const int width, const int height)
         refreshRate = 120;
     }
 
-    // 3. Force the engine to perfectly match the hardware
-    SetTargetFPS(refreshRate);
+    // 3. Force the engine to match the target FPS from settings.
+    // targetFps == 0 means "match the monitor's refresh rate".
+    GameSettings& settings = GameSettings::Get();
+    int targetFps = settings.targetFps > 0 ? settings.targetFps : refreshRate;
+    SetTargetFPS(targetFps);
 
-    // this->currentScreen = new HomePage(); // default page
-    this->currentScreen = new GamePage(); // while working in the page to save time on clicks
+    this->currentScreen = new HomePage(); // default page
+    // this->currentScreen = new GamePage(); // while working in the page to save time on clicks
 }
 
 Game::~Game()

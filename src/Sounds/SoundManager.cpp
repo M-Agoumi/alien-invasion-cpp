@@ -4,6 +4,8 @@
 
 #include "SoundManager.h"
 
+#include "../Settings/GameSettings.h"
+
 SoundManager::SoundManager()
 {
     // Stream the track from disk (better than Sound for long music).
@@ -15,7 +17,8 @@ SoundManager::SoundManager()
 
     if (loaded) {
         backgroundMusic.looping = true;
-        SetBackgroundVolume(0.25f); // start at 25% volume
+        // Use the shared, configurable volume (defaults to 25%).
+        SetBackgroundVolume(GameSettings::Get().EffectiveVolume());
         PlayBackground();
     }
 }
@@ -33,6 +36,8 @@ void SoundManager::Update()
 {
     // Refills the audio buffer; must run every frame while music plays.
     if (loaded) {
+        // Keep the music in sync with the shared settings (live slider/mute).
+        SetBackgroundVolume(GameSettings::Get().EffectiveVolume());
         UpdateMusicStream(backgroundMusic);
     }
 }

@@ -73,6 +73,9 @@ add_executable(${PROJECT_NAME} main.cpp
         src/Entities/Entity.h
         src/Sounds/SoundManager.cpp
         src/Sounds/SoundManager.h
+        src/Settings/GameSettings.h
+        src/Entities/Bullet.cpp
+        src/Entities/Bullet.h
 )
 
 # Link raylib to our game

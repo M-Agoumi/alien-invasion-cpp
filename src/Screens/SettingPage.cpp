@@ -6,6 +6,7 @@
 
 #include "raylib.h"
 #include "raygui.h"
+#include "../Settings/GameSettings.h"
 
 SettingPage::SettingPage() {
     // Load any resources needed for the settings page here
@@ -13,8 +14,13 @@ SettingPage::SettingPage() {
     btnBack = new Button(75, 500, 200, 50, "BACK");
     btnFullscreen = new Button(75, 200, 200, 50, "FULLSCREEN: Off");
     btnMute = new Button(75, 300, 200, 50, "MUTE");
-    isFullscreen = false;
-    volumeLevel = 25.0f; // Default volume level
+
+    // Seed the local UI state from the shared, game-wide settings.
+    GameSettings& settings = GameSettings::Get();
+    isFullscreen = settings.fullscreen;
+    volumeLevel = settings.VolumePercent(); // 0..100 for the slider
+    btnFullscreen->SetText(isFullscreen ? "Fullscreen: On" : "Fullscreen: Off");
+    btnMute->SetText(settings.musicMuted ? "UNMUTE" : "MUTE");
 }
 
 SettingPage::~SettingPage()
@@ -39,6 +45,7 @@ ScreenAction SettingPage::Update() {
     if (btnFullscreen->IsClicked()) {
         // btnFullscreen->set
         isFullscreen = !isFullscreen;
+        GameSettings::Get().fullscreen = isFullscreen; // persist to shared settings
         btnFullscreen->SetText(isFullscreen ? "Fullscreen: On" : "Fullscreen: Off");
 
         ToggleFullscreen(); // This is the Raylib function that actually toggles fullscreen
@@ -66,7 +73,10 @@ ScreenAction SettingPage::Update() {
         }
     }
     if (btnMute->IsClicked()) {
-        // Implement mute functionality here
+        // Toggle the shared mute flag; SoundManager reads this every frame.
+        GameSettings& settings = GameSettings::Get();
+        settings.musicMuted = !settings.musicMuted;
+        btnMute->SetText(settings.musicMuted ? "UNMUTE" : "MUTE");
     }
 
     return ScreenAction::None;
@@ -89,4 +99,8 @@ void SettingPage::Draw() {
 
     GuiSlider((Rectangle){ 75, 300, 240, 24 }, "VOLUME: ",
               TextFormat("%.0f", volumeLevel), &volumeLevel, 0.0f, 100.0f);
+
+    // Push the slider value into the shared settings so the SoundManager
+    // (which reads EffectiveVolume every frame) updates the music live.
+    GameSettings::Get().SetVolumePercent(volumeLevel);
 }
