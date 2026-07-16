@@ -21,6 +21,11 @@ Game::Game(const int width, const int height)
     // 1. Initialize the system
     InitWindow(screenWidth, screenHeight, "Alien Invasion");
 
+    // 1b. Initialize the audio device, then start the background music.
+    // (The audio device MUST exist before any music/sound is loaded.)
+    InitAudioDevice();
+    this->soundManager = new SoundManager(); // starts looping music immediately
+
     // 2. Ask the OS exactly what the monitor's hardware refresh rate is
     int monitor = GetCurrentMonitor();
     int refreshRate = GetMonitorRefreshRate(monitor);
@@ -42,11 +47,19 @@ Game::~Game()
 {
     // Close the system
     delete this->currentScreen;
+    // Free the music stream before shutting the audio device down.
+    delete this->soundManager;
+    CloseAudioDevice();
     CloseWindow();
 }
 
 void Game::Update()
 {
+    // Keep the background music stream fed every frame.
+    if (this->soundManager != nullptr) {
+        this->soundManager->Update();
+    }
+
     // Pass the update logic down to the active screen
     if (this->currentScreen != nullptr) {
         // Grab the action from the current screen

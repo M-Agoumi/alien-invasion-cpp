@@ -13,6 +13,23 @@ endif()
 
 # Fetch raylib directly
 include(FetchContent)
+
+# Dependencies are downloaded once. Don't run a git "update" step on every
+# configure: it's faster, works offline, and (importantly) doesn't fail if the
+# dependency .git folders have been removed to keep them out of the IDE's VCS log.
+set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
+
+# If a dependency's source has already been fetched into this build tree, reuse
+# it directly. Setting FETCHCONTENT_SOURCE_DIR_<NAME> makes FetchContent skip
+# ALL download/update/git steps for that dependency and just use the folder as
+# is -- so the build no longer needs the nested .git repos to exist.
+foreach(dep raylib raygui)
+  set(_dep_src "${CMAKE_BINARY_DIR}/_deps/${dep}-src")
+  if(EXISTS "${_dep_src}")
+    string(TOUPPER ${dep} _DEP_UPPER)
+    set(FETCHCONTENT_SOURCE_DIR_${_DEP_UPPER} "${_dep_src}")
+  endif()
+endforeach()
 FetchContent_Declare(
         raylib
         GIT_REPOSITORY https://github.com/raysan5/raylib.git
@@ -54,6 +71,8 @@ add_executable(${PROJECT_NAME} main.cpp
         src/Entities/Space.cpp
         src/Entities/Space.h
         src/Entities/Entity.h
+        src/Sounds/SoundManager.cpp
+        src/Sounds/SoundManager.h
 )
 
 # Link raylib to our game
