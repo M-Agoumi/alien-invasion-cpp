@@ -48,6 +48,10 @@ void Ship::Update()
         shipPosition.x = static_cast<float>(GetScreenWidth()) - shipWidth;
     if (shipPosition.y > static_cast<float>(GetScreenHeight()) - shipHeight)
         shipPosition.y = static_cast<float>(GetScreenHeight()) - shipHeight;
+
+    // limit the ship to 70% of the screen height
+    const float minY = static_cast<float>(GetScreenHeight()) * 0.3f - shipHeight;
+    if (shipPosition.y < minY) shipPosition.y = minY;
 }
 
 void Ship::animateFire(int shipX, int shipY)
