@@ -1,0 +1,174 @@
+# Valgrind suppression file for AlienInvasion
+# ------------------------------------------------------------------
+# Every entry here is a KNOWN, HARMLESS allocation made ONCE by a
+# third-party library during window/GL initialization and never freed
+# before process exit. None of these originate in our game code.
+#
+# Sources:
+#   * libX11      - locale / Xrm (resource manager) global tables
+#   * GLFW        - X11 backend init (glfwInit / _glfwConnectX11)
+#   * libLLVM     - llvmpipe software OpenGL renderer (Mesa) static init
+#   * ld.so/glibc - dynamic loader bookkeeping for dlopen'd shared libs
+#
+# Usage:
+#   valgrind --leak-check=full --show-leak-kinds=all \
+#            --suppressions=valgrind.supp ./build/AlienInvasion
+# ------------------------------------------------------------------
+
+# --- libX11: locale / charset database (Xlc*) ---------------------
+{
+   x11_xlc_locale_database
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,indirect
+   ...
+   fun:_XlcCreateLC
+   fun:_XlcUtf8Loader
+   fun:_XOpenLC
+   ...
+}
+{
+   x11_xlc_add_ct
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,indirect
+   ...
+   fun:_XlcAddCT
+   ...
+}
+{
+   x11_xlc_default_charset
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,indirect
+   ...
+   fun:_XlcCreateDefaultCharSet
+   ...
+}
+
+# --- libX11: Xrm resource-manager quark tables --------------------
+{
+   x11_xrm_string_to_quark
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,indirect
+   ...
+   fun:_XrmInternalStringToQuark
+   ...
+}
+{
+   x11_xrm_initialize
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,indirect
+   ...
+   fun:XrmInitialize
+   ...
+}
+
+# --- Catch-all for anything routed through GLFW's X11 init --------
+{
+   glfw_x11_init
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,indirect
+   ...
+   fun:_glfwInitX11
+   fun:glfwInit
+   ...
+}
+{
+   glfw_x11_connect
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,indirect
+   ...
+   fun:_glfwConnectX11
+   fun:glfwInit
+   ...
+}
+
+# --- libLLVM (llvmpipe software renderer) static initializers -----
+{
+   llvm_static_init
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,indirect
+   ...
+   obj:*/libLLVM.so*
+   ...
+}
+{
+   llvm_cl_option_add_argument
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,indirect
+   ...
+   fun:_ZN4llvm2cl6Option11addArgumentEv
+   ...
+}
+
+# --- glibc dynamic loader (dlopen of driver .so files) ------------
+{
+   ld_dl_open_new_object
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,indirect
+   ...
+   fun:_dl_new_object
+   ...
+}
+{
+   ld_dl_check_map_versions
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,indirect
+   ...
+   fun:_dl_check_map_versions
+   ...
+}
+{
+   ld_dlopen
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,indirect
+   ...
+   fun:dlopen_implementation
+   ...
+}
+{
+   ld_dl_load_cache_lookup
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,indirect
+   ...
+   fun:_dl_load_cache_lookup
+   ...
+}
+{
+   ld_dl_close_worker
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,indirect
+   ...
+   fun:_dl_close_worker*
+   ...
+}
+{
+   ld_dlclose_glfw_terminate
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,indirect
+   ...
+   fun:dlclose*
+   ...
+   fun:CloseWindow
+   ...
+}
+
+# --- Mesa llvmpipe software renderer: anonymous JIT allocation ----
+# The remaining "definitely lost" 112-byte block has an all-??? stack
+# (JIT/anonymous memory in the llvmpipe software GL driver). It is a
+# one-time, harmless driver allocation, but it has NO named frames, so
+# the only way to match it is by its calloc leaf. That rule is COMMENTED
+# OUT by default because `fun:calloc + ...` is broad enough to also hide
+# real leaks in our own code (e.g. a leaked raylib Image). Enable it only
+# if you are sure you want to silence this driver noise.
+#
+# The proper fix is to avoid llvmpipe entirely by running on a hardware
+# GL driver (unset software-rendering env vars, or run outside a
+# headless/WSL software-GL context).
+#
+# {
+#    mesa_llvmpipe_anon_calloc_leak
+#    Memcheck:Leak
+#    match-leak-kinds: definite,indirect
+#    fun:calloc
+#    ...
+# }
+
